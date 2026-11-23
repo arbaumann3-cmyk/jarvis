@@ -276,6 +276,8 @@ function toBrainConfig(stored) {
     calendarSync: stored.calendarSync !== false,
     // Same convention — falling back to a working model is the default.
     autoSwitchModels: stored.autoSwitchModels !== false,
+    // Auto-approve R2 actions (send/call/post/share) — default off.
+    autoApproveR2: Boolean(stored.autoApproveR2),
   };
 }
 
@@ -507,11 +509,18 @@ export function useBrain() {
   }, []);
 
   const authorizePhoneAction = useCallback((request) => {
-    // A second request while one is already open would orphan the first task on a
-    // promise that never settles. Tasks are single-flight, so this is defensive:
-    // deny the newcomer rather than lose the pending one.
-    if (phoneApprovalResolveRef.current) return Promise.resolve("deny");
-    return new Promise((resolve) => {
+      // A second request while one is already open would orphan the first task on a
+      // promise that never settles. Tasks are single-flight, so this is defensive:
+      // deny the newcomer rather than lose the pending one.
+      if (phoneApprovalResolveRef.current) return Promise.resolve("deny");
+    
+      // Auto-approve R2 actions if the user enabled it in Settings.
+      const cfg = toBrainConfig(storedRef.current);
+      if (request.risk === "R2" && cfg.autoApproveR2) {
+        return Promise.resolve("allow_task");
+      }
+    
+      return new Promise((resolve) => {
       const timer = setTimeout(() => {
         if (phoneApprovalResolveRef.current !== settle) return;
         phoneApprovalResolveRef.current = null;
@@ -1501,8 +1510,9 @@ export function useBrain() {
         : null,
       allowed_dirs: [],
       calendar_sync: stored.calendarSync !== false,
-      pc_commands: stored.pcCommands !== false,
-      agent_mode: stored.agentMode === true,
+            pc_commands: stored.pcCommands !== false,
+            auto_approve_r2: Boolean(stored.autoApproveR2),
+            agent_mode: stored.agentMode === true,
       wa_mode: WA_MODES.has(stored.waMode) ? stored.waMode : "off",
       wa_allowed: typeof stored.waAllowed === "string" ? stored.waAllowed : "",
       wa_access: waAccess,
@@ -1919,7 +1929,8 @@ export function useBrain() {
           next.conversationMode = cfg.conversation_mode;
         if (typeof cfg.calendar_sync === "boolean") next.calendarSync = cfg.calendar_sync;
         if (typeof cfg.pc_commands === "boolean") next.pcCommands = cfg.pc_commands;
-        if (typeof cfg.agent_mode === "boolean") next.agentMode = cfg.agent_mode;
+                if (typeof cfg.auto_approve_r2 === "boolean") next.autoApproveR2 = cfg.auto_approve_r2;
+                if (typeof cfg.agent_mode === "boolean") next.agentMode = cfg.agent_mode;
         if (typeof cfg.ecosystem_beta === "boolean") next.ecosystemBeta = cfg.ecosystem_beta;
         if (cfg.update_channel === "stable" || cfg.update_channel === "beta") next.updateChannel = cfg.update_channel;
         if (WA_MODES.has(cfg.wa_mode)) next.waMode = cfg.wa_mode;

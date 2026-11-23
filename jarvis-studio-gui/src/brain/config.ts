@@ -39,11 +39,14 @@ export interface BrainConfig {
   /** Vertex location — global for Gemini generative calls. */
   vertexRegion?: string;
   /** Shorter, chattier replies (conversation mode). */
-  conversationMode?: boolean;
-  /** Mirror agenda items into the phone's real calendar. Default on (undefined is
-   *  treated as on); writing to someone's actual calendar is outward-facing, so it
-   *  gets an explicit off switch rather than being unconditional. */
-  calendarSync?: boolean;
+    conversationMode?: boolean;
+    /** Mirror agenda items into the phone's real calendar. Default on (undefined is
+     *  treated as on); writing to someone's actual calendar is outward-facing, so it
+     *  gets an explicit off switch rather than being unconditional. */
+    calendarSync?: boolean;
+    /** Skip the consent dialog for R2 actions (send/call/post/share/upload).
+     *  Default off — user must explicitly enable to auto-approve external side effects. */
+    autoApproveR2?: boolean;
   /**
    * Fall back to other models when the chosen one can't answer. Default on
    * (undefined is on) — an answer from a cheaper model beats no answer.

@@ -946,42 +946,48 @@ export default function Settings({
   );
 
   const voicePage = (
-    <>
-      <Group>
-        {IS_MOBILE ? (
-          <>
-            <Toggle
-              label="“Hey Jarvis” wake word"
-              checked={wakeWordOn}
-              onChange={setWakeWordOn}
-              hint="Listens on the phone itself. Nothing is sent until it hears the wake word."
-            />
-            <Field label={`Wake word sensitivity: ${wakeSensitivity}`}>
-              <input
-                aria-label="Wake word sensitivity"
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={wakeSensitivity}
-                onChange={(event) => setWakeSensitivity(Number(event.target.value))}
-                disabled={!wakeWordOn}
-                style={{ width: "100%" }}
+      <>
+        <Group>
+          {IS_MOBILE ? (
+            <>
+              <Toggle
+                label="\u201cHey Jarvis\u201d wake word"
+                checked={wakeWordOn}
+                onChange={setWakeWordOn}
+                hint="Listens on the phone itself. Nothing is sent until it hears the wake word."
               />
-              <p className="sp-desc">
-                Higher catches quieter speech but can trigger more often. Lower is stricter.
-                Default: 60. Applies when you save changes.
-              </p>
-            </Field>
-            <div className="sp-field">
-              <More>
-                Needs microphone permission. Speech-to-text uses Cloud Speech-to-Text on Vertex, or
-                Groq Whisper on Groq and Gemini. Replies are spoken by the phone&apos;s built-in
-                text-to-speech.
-              </More>
-            </div>
-          </>
-        ) : (
+              <Field label={`Wake word sensitivity: ${wakeSensitivity}`}>
+                <input
+                  aria-label="Wake word sensitivity"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={wakeSensitivity}
+                  onChange={(event) => setWakeSensitivity(Number(event.target.value))}
+                  disabled={!wakeWordOn}
+                  style={{ width: "100%" }}
+                />
+                <p className="sp-desc">
+                  Higher catches quieter speech but can trigger more often. Lower is stricter.
+                  Default: 60. Applies when you save changes.
+                </p>
+              </Field>
+              <Toggle
+                label="Auto-approve R2 actions (send / call / post / share)"
+                checked={sysInfo.auto_approve_r2 === true}
+                onChange={(on) => void onSave({ auto_approve_r2: on })}
+                hint="When ON, R2 actions (external side effects) run without a consent dialog. R3 (payments, passwords, deletion) always asks."
+              />
+              <div className="sp-field">
+                <More>
+                  Needs microphone permission. Speech-to-text uses Cloud Speech-to-Text on Vertex, or
+                  Groq Whisper on Groq and Gemini. Replies are spoken by the phone\u2019s built-in
+                  text-to-speech.
+                </More>
+              </div>
+            </>
+          ) : (
           <Field label="Voice">
             <select className="sp-input" value={tts} onChange={(e) => setTts(e.target.value)}>
               {TTS_OPTS.map((o) => (
